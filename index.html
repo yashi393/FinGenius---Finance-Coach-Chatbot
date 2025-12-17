@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinGenius – AI Personal Finance Coach</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-primary: #0b0f1a;
+      --bg-secondary: #11162a;
+      --accent: #7cf5c2;
+      --accent-soft: rgba(124, 245, 194, 0.15);
+      --text-primary: #e7ebf3;
+      --text-muted: #9aa4bf;
+      --bot-bubble: #1a2142;
+      --user-bubble: linear-gradient(135deg, #7cf5c2, #3bb7ff);
+      --border: rgba(255,255,255,0.08);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: radial-gradient(1200px 600px at top right, #18204a 0%, var(--bg-primary) 60%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Chatbot Card */
+    .chatbot-wrapper {
+      width: 100%;
+      max-width: 1100px;
+      height: 650px;
+      background: linear-gradient(180deg, var(--bg-secondary), #0c1226);
+      border-radius: 22px;
+      box-shadow: 0 40px 120px rgba(0,0,0,0.55);
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background: linear-gradient(180deg, #0f1430, #0a0f24);
+      padding: 26px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      border-right: 1px solid var(--border);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #7cf5c2, #3bb7ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #081019;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .brand h1 {
+      font-size: 18px;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    .brand span {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .features {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .feature {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      padding: 14px 16px;
+      border-radius: 14px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .feature strong {
+      display: block;
+      color: var(--text-primary);
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      background: var(--accent-soft);
+      border: 1px solid rgba(124,245,194,0.3);
+      padding: 14px 16px;
+      border-radius: 14px;
+      font-size: 12px;
+      color: var(--accent);
+      line-height: 1.4;
+    }
+
+    /* Chat Area */
+    .chat-area {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .chat-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .chat-header h2 {
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: #2cff9a;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #2cff9a;
+    }
+
+    .messages {
+      flex: 1;
+      padding: 26px 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .message {
+      max-width: 70%;
+      padding: 14px 18px;
+      border-radius: 18px;
+      font-size: 14px;
+      line-height: 1.6;
+      animation: fadeUp 0.35s ease;
+    }
+
+    .bot {
+      background: var(--bot-bubble);
+      border: 1px solid var(--border);
+      align-self: flex-start;
+    }
+
+    .user {
+      background: var(--user-bubble);
+      color: #081019;
+      align-self: flex-end;
+    }
+
+    .suggestions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: -6px;
+    }
+
+    .chip {
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      cursor: pointer;
+      transition: 0.25s ease;
+    }
+
+    .chip:hover {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: rgba(124,245,194,0.4);
+    }
+
+    .chat-input {
+      padding: 18px 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 12px;
+      background: linear-gradient(180deg, #0f1430, #0a0f24);
+    }
+
+    .chat-input input {
+      flex: 1;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      color: var(--text-primary);
+      font-size: 14px;
+      outline: none;
+    }
+
+    .chat-input input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .chat-input button {
+      background: linear-gradient(135deg, #7cf5c2, #3bb7ff);
+      border: none;
+      border-radius: 14px;
+      padding: 0 22px;
+      font-weight: 600;
+      cursor: pointer;
+      color: #081019;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .chat-input button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 30px rgba(124,245,194,0.4);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Scrollbar */
+    .messages::-webkit-scrollbar {
+      width: 6px;
+    }
+    .messages::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+    }
+
+    @media (max-width: 900px) {
+      .chatbot-wrapper {
+        grid-template-columns: 1fr;
+        height: 100vh;
+        border-radius: 0;
+      }
+      .sidebar {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="chatbot-wrapper">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">FG</div>
+        <div>
+          <h1>FinGenius</h1>
+          <span>AI Personal Finance Coach</span>
+        </div>
+      </div>
+
+      <div class="features">
+        <div class="feature">
+          <strong>Smart Budgeting</strong>
+          AI-powered spending insights
+        </div>
+        <div class="feature">
+          <strong>Investment Guidance</strong>
+          Risk-aware portfolio suggestions
+        </div>
+        <div class="feature">
+          <strong>Behavioural Finance</strong>
+          Emotion & bias detection
+        </div>
+        <div class="feature">
+          <strong>Goal Planning</strong>
+          Personalized financial milestones
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        Demo UI • No real financial advice<br>
+        Built for portfolio showcase
+      </div>
+    </aside>
+
+    <!-- Chat Area -->
+    <main class="chat-area">
+      <div class="chat-header">
+        <h2>Chat with FinGenius</h2>
+        <div class="status">
+          <span class="status-dot"></span>
+          AI Online
+        </div>
+      </div>
+
+      <div class="messages" id="messages">
+        <div class="message bot">
+          👋 Hi! I’m <strong>FinGenius</strong>, your AI-powered personal finance coach.<br>
+          I can help you with budgeting, investments, savings goals and smart money decisions.
+        </div>
+
+        <div class="suggestions">
+          <div class="chip">Create a monthly budget</div>
+          <div class="chip">How should I invest as a beginner?</div>
+          <div class="chip">Analyze my spending habits</div>
+          <div class="chip">Set a savings goal</div>
+        </div>
+      </div>
+
+      <div class="chat-input">
+        <input id="userInput" type="text" placeholder="Ask about budgeting, investments, savings..." />
+        <button onclick="sendMessage()">Send</button>
+      </div>
+    </main>
+
+  </div>
+
+  <script>
+    const messages = document.getElementById('messages');
+    const input = document.getElementById('userInput');
+
+    function addMessage(text, type) {
+      const msg = document.createElement('div');
+      msg.className = `message ${type}`;
+      msg.innerHTML = text;
+      messages.appendChild(msg);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    function sendMessage() {
+      const text = input.value.trim();
+      if (!text) return;
+
+      addMessage(text, 'user');
+      input.value = '';
+
+      setTimeout(() => {
+        addMessage(generateBotReply(text), 'bot');
+      }, 700);
+    }
+
+    function generateBotReply(userText) {
+      const replies = [
+        "That’s a great question. A smart budget starts by tracking fixed vs variable expenses.",
+        "For beginners, low-cost index funds and diversification are usually a good start.",
+        "Your spending patterns often reveal emotional triggers — awareness is the first step.",
+        "Clear financial goals work best when they are specific, measurable and time-bound.",
+        "I can simulate financial scenarios, but this demo focuses on UI and experience."
+      ];
+      return replies[Math.floor(Math.random() * replies.length)];
+    }
+
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        input.value = chip.textContent;
+        sendMessage();
+      });
+    });
+
+    input.addEventListener('keypress', e => {
+      if (e.key === 'Enter') sendMessage();
+    });
+  </script>
+
+</body>
+</html>
